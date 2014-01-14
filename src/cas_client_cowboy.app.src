@@ -1,0 +1,6 @@
+{application, cas_client_cowboy, [
+  {description, "CAS Client for Cowboy"},
+  {vsn, "0.1"},
+  {applications, [cas_client_core, giallo_session]},
+  {mod, {cas_client_cowboy, []}}
+]}.
