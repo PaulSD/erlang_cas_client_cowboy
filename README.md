@@ -2,7 +2,9 @@
 
 This Erlang OTP application provides [CAS](http://www.jasig.org/cas) Authentication Middleware for the [Cowboy](https://githb.com/extend/cowboy) web server.
 
-All features of the published [CAS protocols](http://www.jasig.org/cas/protocol) are supported.  However, [Single-Sign-Out](https://wiki.jasig.org/display/CASUM/Single+Sign+Out) is not currently supported.
+All features of the published [CAS protocols](http://www.jasig.org/cas/protocol) are supported, as well as SAML 1.1.
+
+Unfortunately, [Single-Sign-Out](https://wiki.jasig.org/display/CASUM/Single+Sign+Out) cannot be supported because it requires the Middleware to inspect each HTTP request body, but Cowboy only supports reading a request body once.
 
 Canonical source can be found at [https://github.com/PaulSD/erlang_cas_client_cowboy](https://github.com/PaulSD/erlang_cas_client_cowboy)
 
@@ -45,7 +47,7 @@ Set configuration options in the cas_client_core, cas_client_cowboy, and giallo_
 ].
 ```
 
-Core CAS configuration options (to be set in the cas_client_core app env) are documented in [cas_client_core_config](https://github.com/PaulSD/erlang_cas_client_core/src/cas_client_core_config.erl>).  Cowboy-specific CAS configuration options (to be set in the cas_client_cowboy app env) are documented in [cas_client_cowboy_config](src/cas_client_cowboy_config.erl).  Cookie and session related options (to be set in the giallo_session app env) are documented in [giallo_session_config](https://github.com/kivra/giallo_session/src/giallo_session_config.erl)
+Core CAS configuration options (to be set in the cas_client_core app env) are documented in [cas_client_core_config](https://github.com/PaulSD/erlang_cas_client_core/blob/master/src/cas_client_core_config.erl>).  Cowboy-specific CAS configuration options (to be set in the cas_client_cowboy app env) are documented in [cas_client_cowboy_config](blob/master/src/cas_client_cowboy_config.erl).  Cookie and session related options (to be set in the giallo_session app env) are documented in [giallo_session_config](https://github.com/kivra/giallo_session/blob/master/src/giallo_session_config.erl)
 
 Add `cowboy_cas_client` (NOT `cas_client_cowboy`) to the `middlewares` option passed to `cowboy:start_http`:
 
@@ -62,7 +64,7 @@ Optionally use one or more of the following methods in your handler to retrieve 
 {User, NewReq} = cowboy_cas_client:user(Req)
 {Attrs, NewReq} = cowboy_cas_client:attributes(Req)
 {AttrValue, NewReq} = cowboy_cas_client:attribute(<<"Attribute Name">>, Req)
-{ProxyTicket, NewReq} = cowboy_cas_client:proxy_ticket(Req)
+{ProxyTicket, NewReq} = cowboy_cas_client:proxy_ticket(ServiceURL, Req)
 {CookiesEnabled, NewReq} = cowboy_cas_client:client_cookies_enabled(Req)
 ```
 
@@ -70,7 +72,7 @@ Optionally use one or more of the following methods in your handler to retrieve 
 
 To request authentication for specific URLs only, or to set CAS configuration options on a URL-specific basis:
 * Add `cowboy_filter` instead of `cowboy_cas_client` to the `middlewares` option passed to `cowboy:start_http` (either before or after `cowboy_router`, depending on your needs).
-* Configure `cowboy_filter` to call `cowboy_cas_client` for the relevant URLs/handlers.  (See [cowboy_filter](src/cowboy_filter.erl) for details.)
+* Configure `cowboy_filter` to call `cowboy_cas_client` for the relevant URLs/handlers.  (See [cowboy_filter](blob/master/src/cowboy_filter.erl) for details.)
 * Optionally configure `cowboy_filter` to set CAS configuration options via `cas_client_core` and `cas_client_cowboy` values in the middleware environment.  Any CAS options not specified in the middleware environment will be pulled from the application environment.
 
 For example:
