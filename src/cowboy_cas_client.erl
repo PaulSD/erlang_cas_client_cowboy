@@ -148,8 +148,10 @@ execute(Req1, Env) ->
       {true, true, false, _, false} ->
         %% A session should have been created when the user was redirected to CAS, so it is possible
         %% that Cookies are disabled.  However, there are a few situations in which this could occur
-        %% when Cookies are enabled, for example if the user bookmarked the CAS login page.  Perform
-        %% a redirect with a query parameter to definitively test whether Cookies are disabled.
+        %% when Cookies are enabled, for example if the CAS server displays an advisory page before
+        %% redirecting an authenticated user to the application and the user has bookmarked that
+        %% advisory page.  Perform a redirect with a query parameter to definitively test whether
+        %% Cookies are disabled.
         {LogURL, ReqA} = url(Req),
         lager:debug("No session for request to ~s, testing for disabled cookies", [LogURL]),
         ReqB = giallo_session:new(ReqA),
@@ -196,7 +198,7 @@ execute(Req1, Env) ->
             Attrs -> lager:info("Replacing existing CAS authentication ~p with ~p", [Attrs, CAS_Attributes])
             end,
             giallo_session:set(?CAS_KEY, CAS_Attributes, ReqC),
-            reply_redirect(ServiceURL, ReqC);
+            {URL, ReqD} = clean_url(ReqC), reply_redirect(URL, ReqD);
           false ->  %% Cookies are disabled, redirecting would cause a redirect loop through CAS
             {LogURL, ReqD} = url(ReqC),
             lager:debug("Received request to ~s with cookies disabled", [LogURL]),
