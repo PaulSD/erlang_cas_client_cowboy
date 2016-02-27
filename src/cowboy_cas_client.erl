@@ -382,7 +382,7 @@ host_url(Req1) ->
   %% Cowboy doesn't currently provide public access to the transport, so we have to use a private
   %% API call to get it
   LProto =
-    case cowboy_req:get(transport, Req4) of
+    case (cowboy_req:get(transport, Req4)):name() of
     ssl -> <<"https">>;
     _ -> <<"http">>
     end,
